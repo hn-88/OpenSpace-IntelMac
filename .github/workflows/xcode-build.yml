@@ -43,7 +43,7 @@ jobs:
         openSpaceHome="$HOME/source/OpenSpace"
         # https://stackoverflow.com/questions/16700415/cmake-generate-xcode-project-from-existing-sources
         # CMAKE_PREFIX_PATH to /opt/homebrew - https://stackoverflow.com/questions/68105648/configure-cmake-to-work-with-homebrew-libraries-instead-system-provided-librarie
-        cmake -G Xcode -DCMAKE_OSX_ARCHITECTURES="$(ARCHS_STANDARD)" -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS=-Wno-error -DCMAKE_C_FLAGS=-Wno-error -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
+        cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_OSX_ARCHITECTURES="$(ARCHS_STANDARD)" -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS=-Wno-error -DCMAKE_C_FLAGS=-Wno-error -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
         
 
     - name: Build
