@@ -7,7 +7,7 @@ env:
   # This yml is copied from https://github.com/hn-88/OpenSpace-AppImage/blob/main/.github/workflows/appimage-creation.yml
   # and modified.
   BUILD_TYPE: Release
-  OPENSPACE_VERSION: "0.20.1"
+  OPENSPACE_VERSION: "0.21.pre"
   
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         git clone --recursive https://github.com/OpenSpace/OpenSpace.git "$openSpaceHome"
         cd "$openSpaceHome"
         # patch -u modules/webbrowser/CMakeLists.txt webbrowsermodule.patch
-        git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
+        # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
         mkdir build
         cd build
             
