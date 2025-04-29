@@ -26,7 +26,8 @@ jobs:
         openSpaceHome="$HOME/source/OpenSpace"
         git clone --recursive https://github.com/OpenSpace/OpenSpace.git "$openSpaceHome"
         cd "$openSpaceHome"
-        # patch -u modules/webbrowser/CMakeLists.txt webbrowsermodule.patch
+        # the cmakelists.txt in webbrowser module needs a target name change for modern cmake
+        patch -u modules/webbrowser/CMakeLists.txt webbrowsermodule.patch
         # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
         mkdir build
         cd build
