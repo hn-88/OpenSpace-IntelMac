@@ -29,6 +29,8 @@ jobs:
         cd "$openSpaceHome"
         # the cmakelists.txt in webbrowser module needs a target name change for modern cmake
         patch -u modules/webbrowser/CMakeLists.txt ${{env.THIS_REPO_PATH}}/webbrowsermodule.patch
+        # the cmakelists.txt in audio module needs to specify not ALSA if APPLE
+        patch -u modules/audio/CMakeLists.txt ${{env.THIS_REPO_PATH}}/audiomodule.patch
         # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
         mkdir build
         cd build
@@ -43,8 +45,6 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
-        echo "Try to overcome ALSA_LIBRARY not defined message by deleting the ext soloud contrib directory..."
-        rm -Rfv $openSpaceHome/modules/audio/ext/soloud/contrib
         # https://stackoverflow.com/questions/16700415/cmake-generate-xcode-project-from-existing-sources
         # CMAKE_PREFIX_PATH to /opt/homebrew - https://stackoverflow.com/questions/68105648/configure-cmake-to-work-with-homebrew-libraries-instead-system-provided-librarie
         cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS=-Wno-error -DCMAKE_C_FLAGS=-Wno-error -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
