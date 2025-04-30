@@ -45,6 +45,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
+        cd "$openSpaceHome/build"
         # https://stackoverflow.com/questions/16700415/cmake-generate-xcode-project-from-existing-sources
         # CMAKE_PREFIX_PATH to /opt/homebrew - https://stackoverflow.com/questions/68105648/configure-cmake-to-work-with-homebrew-libraries-instead-system-provided-librarie
         cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_C_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
@@ -55,10 +56,9 @@ jobs:
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
         cd "$openSpaceHome/build"
-        echo "Check to see if we have enough disk space ... "
-        df -h
-        pwd
-        cmake --build . --config ${{env.BUILD_TYPE}} -- -DCMAKE_OSX_ARCHITECTURES=x86_64 --log-level=VERBOSE
+        # echo "Check to see if we have enough disk space ... " only 8 GB used out of 120+ GB
+        # df -h
+        cmake --build . --config ${{env.BUILD_TYPE}} -- -DCMAKE_OSX_ARCHITECTURES=x86_64
         
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
