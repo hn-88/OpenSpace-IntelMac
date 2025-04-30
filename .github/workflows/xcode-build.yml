@@ -55,6 +55,9 @@ jobs:
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
         cd "$openSpaceHome/build"
+        echo "Check to see if we have enough disk space ... "
+        df -h
+        pwd
         cmake --build . --config ${{env.BUILD_TYPE}} -- -DCMAKE_OSX_ARCHITECTURES=x86_64 --log-level=VERBOSE
         
     - name: Upload Artifact
