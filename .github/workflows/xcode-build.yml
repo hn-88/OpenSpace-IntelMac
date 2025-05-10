@@ -32,6 +32,7 @@ jobs:
         # the cmakelists.txt in audio module needs to specify not ALSA if APPLE
         patch -u modules/audio/CMakeLists.txt ${{env.THIS_REPO_PATH}}/audiomodule.patch
         # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
+        git checkout "a88e1f46e5f938c95bb7d1575fff285be45646b4" --recurse-submodules
         mkdir build
         cd build
             
@@ -48,7 +49,7 @@ jobs:
         cd "$openSpaceHome/build"
         # https://stackoverflow.com/questions/16700415/cmake-generate-xcode-project-from-existing-sources
         # CMAKE_PREFIX_PATH to /opt/homebrew - https://stackoverflow.com/questions/68105648/configure-cmake-to-work-with-homebrew-libraries-instead-system-provided-librarie
-        cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_C_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
+        cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DONLY_ACTIVE_ARCH=NO -DCMAKE_CXX_FLAGS="-Wno-error -D_FILE_OFFSET_BITS=64" -DCMAKE_C_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome" 
         
 
     - name: Build
