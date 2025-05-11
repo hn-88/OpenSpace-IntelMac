@@ -32,7 +32,10 @@ jobs:
         # the cmakelists.txt in audio module needs to specify not ALSA if APPLE
         patch -u modules/audio/CMakeLists.txt ${{env.THIS_REPO_PATH}}/audiomodule.patch
         # sgct needs C++ STANDARD 20 according to copilot
+        ls -l apps/OpenSpace/ext/sgct/CMakeLists.txt
         mv ${{env.THIS_REPO_PATH}}/apps-OpenSpace-ext-sgct-CMakeLists.txt apps/OpenSpace/ext/sgct/CMakeLists.txt
+        ls -l apps/OpenSpace/ext/sgct/CMakeLists.txt 
+        # verifying if the sgct/CMakeLists.txt is correctly updated
         # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
         git checkout "a88e1f46e5f938c95bb7d1575fff285be45646b4" --recurse-submodules
         mkdir build
