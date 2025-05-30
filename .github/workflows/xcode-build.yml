@@ -8,7 +8,7 @@ env:
   # and modified. More inputs from https://github.com/hn-88/sgct-test-builds-v2/blob/9261286976f69f3e1e01c574dc31f461f21ec114/.github/workflows/cmake-xcode-intel-macos14.yml
   # sgct will not build cleanly with default macos-13 runner, so using macos-14
   BUILD_TYPE: Release
-  OPENSPACE_VERSION: "0.21.pre"
+  OPENSPACE_VERSION: "0.21.post-rc1"
   THIS_REPO_PATH: "/Users/runner/work/OpenSpace-IntelMac/OpenSpace-IntelMac" 
   
 jobs:
@@ -28,12 +28,8 @@ jobs:
         openSpaceHome="$HOME/source/OpenSpace"
         git clone --recursive https://github.com/OpenSpace/OpenSpace.git "$openSpaceHome"
         cd "$openSpaceHome"
-        # the cmakelists.txt in webbrowser module needs a target name change for modern cmake
-        patch -u modules/webbrowser/CMakeLists.txt ${{env.THIS_REPO_PATH}}/webbrowsermodule.patch
-        # the cmakelists.txt in audio module needs to specify not ALSA if APPLE
-        patch -u modules/audio/CMakeLists.txt ${{env.THIS_REPO_PATH}}/audiomodule.patch
         # use the main branch instead # git checkout "releases/v${OPENSPACE_VERSION}" --recurse-submodules
-        git checkout "a88e1f46e5f938c95bb7d1575fff285be45646b4" --recurse-submodules
+        git checkout "9d3bc5ac68148a53cba3315a3ae884b9a2a03b59" --recurse-submodules
         # update sgct to a commit which solves build issues
         cd "$openSpaceHome/apps/OpenSpace/ext/sgct"
         git checkout "265e4bb76ce1bd0e8cb28599e1a667aab2ef3622"
