@@ -36,6 +36,11 @@ jobs:
         cd "$openSpaceHome"
         mkdir build
         cd build
+
+    - name: Patch CEF binary platform code
+      run: |
+        openSpaceHome="$HOME/source/OpenSpace"
+        cp -v modules-webbrowser-cmake-cef_support.cmake "$openSpaceHome/modules/webbrowser/cmake/cef_support.cmake"
             
     - name: Install dependencies
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/ubuntu.html
