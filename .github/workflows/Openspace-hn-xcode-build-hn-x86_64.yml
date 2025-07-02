@@ -21,6 +21,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Select Xcode 15.3
+      run: sudo xcode-select -s /Applications/Xcode_15.3.app
+    
     - name: get openspace code for a particular release
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/macos.html
       run: |
