@@ -12,10 +12,8 @@ env:
   
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-arm64-Readme.md
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md
     runs-on: macos-13
 
     steps:
@@ -49,9 +47,25 @@ jobs:
         openSpaceHome="$HOME/source/OpenSpace"
         # cp -v src-interaction-touchbar.mm "$openSpaceHome/src/interaction/touchbar.mm"
 
-    - name: patch verifier.inl and other files
+    - name: replacing std::format with fmt::format
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
+        cd "$openSpaceHome"
+        # Since macos-13 github runner only has XCode 15.2, and that doesn't support std::format
+        # replacing all instances in the codebase with fmt::format
+        brew install fmt
+        find . -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hpp" -o -name "*.h" \) -exec sed -i '' 's/std::format/fmt::format/g' {} +
+        # and replacing the include <format> lines too
+        find . -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hpp" -o -name "*.h" \) -exec sed -i '' 's/#include\s*<format>/#include <fmt\/core.h>/g' {} +
+
+    - name: Link fmt with every target in all CMakeLists.txt
+      run: |
+        find . -name 'CMakeLists.txt' | while read cmakefile; do
+          # Insert target_link_libraries line after every add_executable or add_library
+          sed -i '' -E '/add_(executable|library)\(([^ )]+)/a    target_link_libraries(\2 PRIVATE fmt::fmt) ' "$cmakefile"
+          # Ensure find_package(fmt REQUIRED) is present
+          grep -q 'find_package(fmt' "$cmakefile" || sed -i '' '1ifind_package(fmt REQUIRED)' "$cmakefile"
+        done
             
     - name: Install dependencies
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/ubuntu.html
