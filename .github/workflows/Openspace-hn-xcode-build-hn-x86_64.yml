@@ -49,6 +49,9 @@ jobs:
 
     - name: replacing std::format with fmt::format
       run: |
+        # fix for sed complaining of illegal byte sequence - https://github.com/hn-88/OpenSpace-IntelMac/issues/9
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
         openSpaceHome="$HOME/source/OpenSpace"
         cd "$openSpaceHome"
         # Since macos-13 github runner only has XCode 15.2, and that doesn't support std::format
