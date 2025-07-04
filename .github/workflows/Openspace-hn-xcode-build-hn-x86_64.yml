@@ -67,7 +67,10 @@ jobs:
         cd "$openSpaceHome"
         find . -name 'CMakeLists.txt' | while read cmakefile; do
           # Insert target_link_libraries line after every add_executable or add_library
-          sed -i '' -E '/add_(executable|library)\(([^ )]+)/a    target_link_libraries(\2 PRIVATE fmt::fmt) ' "$cmakefile"
+          run: |
+            sed -i '' -E '/add_(executable|library)\(([^ )]+)/a\
+            target_link_libraries(\2 PRIVATE fmt::fmt)
+             ' "$cmakefile"
           # Ensure find_package(fmt REQUIRED) is present
           grep -q 'find_package(fmt' "$cmakefile" || sed -i '' '1ifind_package(fmt REQUIRED)' "$cmakefile"
         done
