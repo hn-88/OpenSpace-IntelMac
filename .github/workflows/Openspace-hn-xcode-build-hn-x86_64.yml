@@ -63,6 +63,8 @@ jobs:
 
     - name: Link fmt with every target in all CMakeLists.txt
       run: |
+        openSpaceHome="$HOME/source/OpenSpace"
+        cd "$openSpaceHome"
         find . -name 'CMakeLists.txt' | while read cmakefile; do
           # Insert target_link_libraries line after every add_executable or add_library
           sed -i '' -E '/add_(executable|library)\(([^ )]+)/a    target_link_libraries(\2 PRIVATE fmt::fmt) ' "$cmakefile"
@@ -73,7 +75,7 @@ jobs:
     - name: patch sgct src CMakeLists.txt for fmt
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
-        cp -v sgct-src-CMakeLists.txt "$openSpaceHome/apps/OpenSpace/ext/sgct/src/CMakeLists.txt"
+        # cp -v sgct-src-CMakeLists.txt "$openSpaceHome/apps/OpenSpace/ext/sgct/src/CMakeLists.txt"
             
     - name: Install dependencies
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/ubuntu.html
