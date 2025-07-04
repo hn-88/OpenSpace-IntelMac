@@ -70,10 +70,10 @@ jobs:
           grep -q 'find_package(fmt' "$cmakefile" || sed -i '' '1ifind_package(fmt REQUIRED)' "$cmakefile"
         done
 
-    - name: patch sgct format.h
+    - name: patch sgct src CMakeLists.txt for fmt
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
-        cp -v apps-OpenSpace-ext-sgct-include-sgct-format.h "$openSpaceHome/apps/OpenSpace/ext/sgct/include/sgct/format.h"
+        cp -v sgct-src-CMakeLists.txt "$openSpaceHome/apps/OpenSpace/ext/sgct/src/CMakeLists.txt"
             
     - name: Install dependencies
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/ubuntu.html
