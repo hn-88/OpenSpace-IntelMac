@@ -47,6 +47,15 @@ jobs:
         openSpaceHome="$HOME/source/OpenSpace"
         # cp -v src-interaction-touchbar.mm "$openSpaceHome/src/interaction/touchbar.mm"
 
+    - name: Build fmt from source
+      run: |
+        git clone https://github.com/fmtlib/fmt.git
+        cd fmt
+        mkdir build && cd build
+        cmake .. -DCMAKE_OSX_ARCHITECTURES=x86_64 -DBUILD_SHARED_LIBS=ON
+        make
+        sudo make install
+
     - name: replacing std::format with fmt::format
       run: |
         # fix for sed complaining of illegal byte sequence - https://github.com/hn-88/OpenSpace-IntelMac/issues/9
@@ -56,7 +65,7 @@ jobs:
         cd "$openSpaceHome"
         # Since macos-13 github runner only has XCode 15.2, and that doesn't support std::format
         # replacing all instances in the codebase with fmt::format
-        brew install fmt
+        # brew install fmt <-- cmake error issue #12
         find . -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hpp" -o -name "*.h" \) -exec sed -i '' 's/std::format/fmt::format/g' {} +
         # and replacing the include <format> lines too
         find . -type f \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hpp" -o -name "*.h" \) -exec sed -i '' 's/#include\s*<format>/#include <fmt\/core.h>/g' {} +
