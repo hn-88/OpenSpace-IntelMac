@@ -1,10 +1,12 @@
-name: Rosetta Build for Intel Mac (x86_64)
+name: Build for Intel Mac (x86_64)
+
 on:
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-14
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -13,28 +15,33 @@ jobs:
         run: |
           /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 
-      - name: Install x86_64 Homebrew
+      - name: Install x86_64 Homebrew under Rosetta
         run: |
           arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
+          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bash_profile"
+          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bashrc"
+
+      - name: Load x86_64 Homebrew shell environment
+        run: |
           eval "$(/usr/local/bin/brew shellenv)"
+          arch -x86_64 brew doctor || true
+          arch -x86_64 brew config
 
       - name: Install dependencies (x86_64)
         run: |
-          arch -x86_64 /usr/local/bin/brew install \
-            cmake \
-            glew \
-            boost \
-            freeimage \
-            mpv \
-            vulkan-headers \
-            vulkan-loader \
-            brotli \
-            gdal \
-            qt@6
+          eval "$(/usr/local/bin/brew shellenv)"
+          export HOMEBREW_NO_INSTALL_FROM_API=1
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          export HOMEBREW_NO_ENV_HINTS=1
+          export HOMEBREW_NO_ANALYTICS=1
+          export HOMEBREW_NO_EMOJI=1
+          export HOMEBREW_FORCE_BREWED_CURL=1
+          arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal qt@6
 
-      - name: Configure OpenSpace with CMake
+      - name: Configure OpenSpace with CMake (x86_64)
         run: |
+          eval "$(/usr/local/bin/brew shellenv)"
           mkdir -p build
           cd build
           arch -x86_64 cmake .. \
@@ -42,7 +49,8 @@ jobs:
             -DCMAKE_PREFIX_PATH="/usr/local/opt/qt@6;/usr/local/opt/boost;/usr/local/opt/glew" \
             -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build OpenSpace
+      - name: Build OpenSpace (x86_64)
         run: |
+          eval "$(/usr/local/bin/brew shellenv)"
           cd build
           arch -x86_64 cmake --build . --parallel
