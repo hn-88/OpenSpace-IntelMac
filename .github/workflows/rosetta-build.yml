@@ -9,7 +9,11 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with: 
+          repository: 'hn-88/OpenSpace'
+          ref: 'ToCompileOnMacOS'
+          submodules: 'recursive'
 
       - name: Install Rosetta 2
         run: |
@@ -43,7 +47,9 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.9.1          
+          version: 6.9.1
+          host: mac
+          arch: x86-64
           aqtversion: '>=3.2.0' # 3.2.0+ required for Qt 6.8+ support; https://github.com/miurahr/aqtinstall/issues/843
       - name: Upload aqtinstall log file
         if: failure()
