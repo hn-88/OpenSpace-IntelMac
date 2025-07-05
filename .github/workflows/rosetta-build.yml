@@ -37,7 +37,21 @@ jobs:
           export HOMEBREW_NO_ANALYTICS=1
           export HOMEBREW_NO_EMOJI=1
           export HOMEBREW_FORCE_BREWED_CURL=1
-          arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal qt@6
+          arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal glm
+          
+          # via https://github.com/pcolby/dokit/blob/main/.github/workflows/build.yaml
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.9.1          
+          aqtversion: '>=3.2.0' # 3.2.0+ required for Qt 6.8+ support; https://github.com/miurahr/aqtinstall/issues/843
+      - name: Upload aqtinstall log file
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aqtinstall-log
+          path: aqtinstall.log
+          if-no-files-found: error
 
       - name: Configure OpenSpace with CMake (x86_64)
         run: |
