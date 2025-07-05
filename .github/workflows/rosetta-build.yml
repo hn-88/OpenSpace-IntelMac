@@ -1,0 +1,48 @@
+name: Rosetta Build for Intel Mac (x86_64)
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install Rosetta 2
+        run: |
+          /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+
+      - name: Install x86_64 Homebrew
+        run: |
+          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+          eval "$(/usr/local/bin/brew shellenv)"
+
+      - name: Install dependencies (x86_64)
+        run: |
+          arch -x86_64 /usr/local/bin/brew install \
+            cmake \
+            glew \
+            boost \
+            freeimage \
+            mpv \
+            vulkan-headers \
+            vulkan-loader \
+            brotli \
+            gdal \
+            qt@6
+
+      - name: Configure OpenSpace with CMake
+        run: |
+          mkdir -p build
+          cd build
+          arch -x86_64 cmake .. \
+            -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+            -DCMAKE_PREFIX_PATH="/usr/local/opt/qt@6;/usr/local/opt/boost;/usr/local/opt/glew" \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build OpenSpace
+        run: |
+          cd build
+          arch -x86_64 cmake --build . --parallel
