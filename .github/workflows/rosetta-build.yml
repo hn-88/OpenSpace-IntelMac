@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: macos-14
+    env:
+      HOMEBREW_PREFIX: ${{ github.workspace }}/homebrew-x86_64
 
     steps:
       - name: Checkout source
@@ -19,58 +21,57 @@ jobs:
         run: |
           /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 
-      - name: Install x86_64 Homebrew under Rosetta
+      - name: Install x86_64 Homebrew under Rosetta in isolated directory
         run: |
-          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
-          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bash_profile"
-          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.bashrc"
+          mkdir -p "$HOMEBREW_PREFIX"
+          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+          echo "eval \"\$($HOMEBREW_PREFIX/bin/brew shellenv)\"" >> "$HOME/.profile"
 
       - name: Load x86_64 Homebrew shell environment
         run: |
-          eval "$(/usr/local/bin/brew shellenv)"
+          eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
           arch -x86_64 brew doctor || true
           arch -x86_64 brew config
 
       - name: Install dependencies (x86_64)
         run: |
-          eval "$(/usr/local/bin/brew shellenv)"
+          eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
           export HOMEBREW_NO_INSTALL_FROM_API=1
           export HOMEBREW_NO_AUTO_UPDATE=1
           export HOMEBREW_NO_ENV_HINTS=1
           export HOMEBREW_NO_ANALYTICS=1
           export HOMEBREW_NO_EMOJI=1
           export HOMEBREW_FORCE_BREWED_CURL=1
-          arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal glm
+          arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal glm qt@6
           
           # via https://github.com/pcolby/dokit/blob/main/.github/workflows/build.yaml
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: 6.9.1
-          host: mac
-          arch: x86-64
-          aqtversion: '>=3.2.0' # 3.2.0+ required for Qt 6.8+ support; https://github.com/miurahr/aqtinstall/issues/843
-      - name: Upload aqtinstall log file
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aqtinstall-log
-          path: aqtinstall.log
-          if-no-files-found: error
+     # - name: Install Qt
+      #  uses: jurplel/install-qt-action@v4
+      #  with:
+      #    version: 6.9.1
+      #    host: mac
+      #    arch: x86-64
+      #    aqtversion: '>=3.2.0' # 3.2.0+ required for Qt 6.8+ support; https://github.com/miurahr/aqtinstall/issues/843
+     # - name: Upload aqtinstall log file
+     #   if: failure()
+     #   uses: actions/upload-artifact@v4
+     #   with:
+     #     name: aqtinstall-log
+     #     path: aqtinstall.log
+     #     if-no-files-found: error
 
       - name: Configure OpenSpace with CMake (x86_64)
         run: |
-          eval "$(/usr/local/bin/brew shellenv)"
+          eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
           mkdir -p build
           cd build
           arch -x86_64 cmake .. \
             -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-            -DCMAKE_PREFIX_PATH="/usr/local/opt/qt@6;/usr/local/opt/boost;/usr/local/opt/glew" \
+            -DCMAKE_PREFIX_PATH="${HOMEBREW_PREFIX}/opt/qt@6;${HOMEBREW_PREFIX}/opt/boost;${HOMEBREW_PREFIX}/opt/glew" \
             -DCMAKE_BUILD_TYPE=Release
 
       - name: Build OpenSpace (x86_64)
         run: |
-          eval "$(/usr/local/bin/brew shellenv)"
+          eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
           cd build
           arch -x86_64 cmake --build . --parallel
