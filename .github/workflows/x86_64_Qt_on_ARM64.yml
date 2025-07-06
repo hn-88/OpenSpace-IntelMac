@@ -1,0 +1,56 @@
+name: Install x86_64 Qt on ARM64 with Cache
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    env:
+      QT_VERSION: '6.9.1'
+      QT_MODULE: 'qt.qt6.691.macos.clang_64'
+      QT_ARCH: 'clang_64'
+      INSTALL_DIR: ${{ github.workspace }}/Qt
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable Rosetta
+        run: |
+          sudo softwareupdate --install-rosetta --agree-to-license
+
+      - name: Cache Qt installation
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.INSTALL_DIR }}
+          key: qt-${{ env.QT_VERSION }}-${{ env.QT_ARCH }}-${{ runner.os }}
+
+      - name: Download Qt Online Installer
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          curl -LO https://download.qt.io/official_releases/online_installers/qt-unified-mac-x64-online.dmg
+          hdiutil attach qt-unified-mac-x64-online.dmg
+
+      - name: Install Qt silently (only if not cached)
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $INSTALL_DIR
+          /Volumes/Qt*/qt-unified-mac-x64-online.app/Contents/MacOS/qt-unified-mac-x64-online --platform minimal \
+            --silent \
+            --verbose \
+            --accept-licenses \
+            --auto-install \
+            --installPath $INSTALL_DIR \
+            --packages $QT_MODULE
+
+      - name: List Qt Installation
+        run: |
+          ls -R $INSTALL_DIR
+
+      - name: Set up Qt environment
+        run: |
+          echo "QT_ROOT=${INSTALL_DIR}/Qt/${QT_VERSION}/${QT_ARCH}" >> $GITHUB_ENV
+          echo "PATH=${INSTALL_DIR}/Qt/${QT_VERSION}/${QT_ARCH}/bin:\$PATH" >> $GITHUB_ENV
