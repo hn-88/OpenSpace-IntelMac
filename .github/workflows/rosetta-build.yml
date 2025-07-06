@@ -21,8 +21,8 @@ jobs:
 
       - name: Uninstall conflicting ARM64 Homebrew packages
         run: |
-          brew uninstall glew boost freeimage vulkan-headers vulkan-loader brotli gdal glm
-          brew autoremove
+          # brew uninstall glew boost freeimage vulkan-headers vulkan-loader brotli gdal glm
+          # brew autoremove
           while [[ `brew list | wc -l` -ne 0 ]]; do
               for EACH in `brew list`; do
                   brew uninstall --force --ignore-dependencies $EACH
