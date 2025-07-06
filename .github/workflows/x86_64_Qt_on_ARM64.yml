@@ -37,7 +37,7 @@ jobs:
 
       - name: Find Qt installer path and run
         run: |
-          INSTALLER=$(find /Volumes -name qt-unified-mac-x64-online -type f | head -n 1)
+          INSTALLER=$(find /Volumes -name "qt-online-installer-macOS-x64*" -type f | head -n 1)
           echo "Installer found at: $INSTALLER"
           arch -x86_64 "$INSTALLER" --platform minimal \
             --silent \
