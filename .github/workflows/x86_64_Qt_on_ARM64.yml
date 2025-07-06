@@ -31,8 +31,9 @@ jobs:
       - name: Download Qt Online Installer
         if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
-          curl -LO https://download.qt.io/official_releases/online_installers/qt-unified-mac-x64-online.dmg
-          hdiutil attach qt-unified-mac-x64-online.dmg
+          curl -L -o qt-installer.dmg https://download.qt.io/official_releases/online_installers/qt-unified-mac-x64-online.dmg
+          file qt-installer.dmg
+          hdiutil attach qt-installer.dmg
 
       - name: Install Qt silently (only if not cached)
         if: steps.cache-qt.outputs.cache-hit != 'true'
