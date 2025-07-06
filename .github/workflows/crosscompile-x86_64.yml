@@ -58,11 +58,18 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.9.1'
-        arch: x64 
-        # x86-64 fails with Please use 'aqt list-qt mac desktop --arch 6.9.1' to show architectures available.
+        arch: clang_64 
+        # x86-64 /x64 fails with Please use 'aqt list-qt mac desktop --arch 6.9.1' to show architectures available.
 
-    # - name: Install QT for x86_64
+   # - name: Install QT for x86_64
     # https://doc.qt.io/qt-6.9/get-and-install-qt-cli.html#options-for-unattended-usage
+   #   run: |
+        # https://doc.qt.io/qt-6.9/get-and-install-qt-cli.html
+   #     wget https://download.qt.io/official_releases/online_installers/qt-online-installer-mac-x64-online.dmg
+        # macOS: new installation with Qt Online Installer
+   #     hdiutil attach qt-online-installer-macOS-x64-4.10.0.dmg
+   #     /Volumes/qt-unified-macOS-x64-[Qt Online Installer version]-online/qt-unified-macOS-x64-[Qt Online Installer version]-online.app/Contents/MacOS/qt-unified-macOS-x64-[Qt Online Installer version]-online install qt6.9.1-sdk
+   #     hdiutil detach /Volumes/qt-unified-macOS-x64-[Qt Online Installer version]-online
     
 
     - name: Configure CMake
