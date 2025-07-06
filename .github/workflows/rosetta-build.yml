@@ -19,15 +19,16 @@ jobs:
         run: |
           /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 
-      - name: Remove preinstalled ARM64 Homebrew to prevent conflicts
+      - name: Uninstall conflicting ARM64 Homebrew packages
         run: |
-          sudo rm -rf /opt/homebrew
-          sudo rm -rf /opt/homebrew-core
-          sudo rm -rf /opt/homebrew-cask
-          sudo rm -rf /opt/homebrew/.git
-          sudo rm -rf /opt/homebrew/.github
-          sudo rm -rf /opt/homebrew/bin
-          sudo rm -rf /opt/homebrew/share
+          brew uninstall glew boost freeimage vulkan-headers vulkan-loader brotli gdal glm
+          brew autoremove
+          while [[ `brew list | wc -l` -ne 0 ]]; do
+              for EACH in `brew list`; do
+                  brew uninstall --force --ignore-dependencies $EACH
+              done
+          done
+
 
       - name: Install x86_64 Homebrew under Rosetta to /usr/local
         run: |
@@ -44,26 +45,50 @@ jobs:
       - name: Install dependencies (x86_64)
         run: |
           eval "$(/usr/local/bin/brew shellenv)"
-          export HOMEBREW_NO_INSTALL_FROM_API=1
-          export HOMEBREW_NO_AUTO_UPDATE=1
-          export HOMEBREW_NO_ENV_HINTS=1
-          export HOMEBREW_NO_ANALYTICS=1
-          export HOMEBREW_NO_EMOJI=1
-          export HOMEBREW_FORCE_BREWED_CURL=1
           arch -x86_64 brew install cmake glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal glm qt@6
 
-      - name: Configure OpenSpace with CMake (x86_64)
-        run: |
-          eval "$(/usr/local/bin/brew shellenv)"
-          mkdir -p build
-          cd build
-          arch -x86_64 cmake .. \
-            -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-            -DCMAKE_PREFIX_PATH="/usr/local/opt/qt@6;/usr/local/opt/boost;/usr/local/opt/glew" \
-            -DCMAKE_BUILD_TYPE=Release
+     # - name: Configure OpenSpace with CMake (x86_64)
+     #   run: |
+     #     eval "$(/usr/local/bin/brew shellenv)"
+     #     mkdir -p build
+     #     cd build
+     #     arch -x86_64 cmake .. \
+     #       -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+     #       -DCMAKE_PREFIX_PATH="/usr/local/opt/qt@6;/usr/local/opt/boost;/usr/local/opt/glew" \
+     #       -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build OpenSpace (x86_64)
-        run: |
-          eval "$(/usr/local/bin/brew shellenv)"
-          cd build
-          arch -x86_64 cmake --build . --parallel
+     # - name: Build OpenSpace (x86_64)
+     #   run: |
+     #     eval "$(/usr/local/bin/brew shellenv)"
+     #     cd build
+     #     arch -x86_64 cmake --build . --parallel
+
+         - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: |
+        openSpaceHome="$HOME/source/OpenSpace"
+        cd "$openSpaceHome/build"
+        # https://stackoverflow.com/questions/16700415/cmake-generate-xcode-project-from-existing-sources
+        # CMAKE_PREFIX_PATH to /opt/homebrew - https://stackoverflow.com/questions/68105648/configure-cmake-to-work-with-homebrew-libraries-instead-system-provided-librarie
+        arch -x86_64  cmake -G Xcode -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_CXX_STANDARD=20 -DONLY_ACTIVE_ARCH=YES -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3 -DCMAKE_CXX_FLAGS="-Wno-error -D_FILE_OFFSET_BITS=64" -DCMAKE_C_FLAGS="-Wno-error -Wno-dev -D_FILE_OFFSET_BITS=64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_PREFIX_PATH=/opt/homebrew -DBUILD_TESTS=OFF -DCOMPILE_WARNING_AS_ERROR=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome"       
+
+    - name: Build
+      # Build your program with the given configuration
+      run: |
+        openSpaceHome="$HOME/source/OpenSpace"
+        cd "$openSpaceHome/build"
+        # echo "Check to see if we have enough disk space ... " only 8 GB used out of 120+ GB
+        # df -h
+        arch -x86_64 cmake --build . --config ${{env.BUILD_TYPE}} -- -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        # Artifact name
+        name: OpenSpace-MacOS14-IntelMac
+        # optional, default is artifact
+        # A file, directory or wildcard pattern that describes what to upload
+        path: /Users/runner/source/OpenSpace/bin/Release/*.app
+      
+
