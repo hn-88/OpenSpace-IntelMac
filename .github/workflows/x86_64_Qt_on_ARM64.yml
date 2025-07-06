@@ -35,17 +35,18 @@ jobs:
           file qt-installer.dmg
           hdiutil attach qt-installer.dmg
 
-      - name: Install Qt silently (only if not cached)
-        if: steps.cache-qt.outputs.cache-hit != 'true'
+      - name: Find Qt installer path and run
         run: |
-          mkdir -p $INSTALL_DIR
-          /Volumes/Qt*/qt-unified-mac-x64-online.app/Contents/MacOS/qt-unified-mac-x64-online --platform minimal \
+          INSTALLER=$(find /Volumes -name qt-unified-mac-x64-online -type f | head -n 1)
+          echo "Installer found at: $INSTALLER"
+          arch -x86_64 "$INSTALLER" --platform minimal \
             --silent \
             --verbose \
             --accept-licenses \
             --auto-install \
             --installPath $INSTALL_DIR \
             --packages $QT_MODULE
+
 
       - name: List Qt Installation
         run: |
