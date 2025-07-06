@@ -1,4 +1,4 @@
-name: crosscompile-x86_64-on-macos14
+name: manual-build-deps-crosscompile-x86_64-on-macos14
 
 on: workflow_dispatch
 
@@ -51,8 +51,109 @@ jobs:
     - name: Install dependencies
       # https://docs.openspaceproject.com/releases-v0.20/contribute/development/compiling/ubuntu.html
       run: |
-        brew install glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal 
-        # installing qt@6 separately for intel libraries
+        # brew install glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal 
+        # installing qt@6 and each separately for intel libraries
+    
+    - name: Restore dependency cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/src
+          ~/os-deps-x86_64
+        key: os-deps-cache-${{ runner.os }}-v1
+
+    - name: Build OpenSpace Dependencies from Source (x86_64)
+      run: |
+        set -e
+        export ARCH=x86_64
+        export PREFIX="$HOME/os-deps-$ARCH"
+        export PATH="$PREFIX/bin:$PATH"
+        export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/share/pkgconfig"
+        mkdir -p "$PREFIX" "$HOME/src"
+        cd "$HOME/src"
+
+        alias make="arch -x86_64 make"
+        alias cmake="arch -x86_64 cmake"
+
+        # Skip building if already built
+        if [ -f "$PREFIX/lib/libGLEW.a" ]; then
+          echo "Dependencies already built and cached."
+          exit 0
+        fi
+
+        ######## GLEW ########
+        git clone --depth=1 https://github.com/nigels-com/glew.git glew-src
+        cd glew-src
+        make GLEW_DEST="$PREFIX" SYSTEM=darwin
+        make GLEW_DEST="$PREFIX" install
+        cd ..
+
+        ######## BOOST ########
+        curl -LO https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.gz
+        tar xf boost_1_84_0.tar.gz
+        cd boost_1_84_0
+        ./bootstrap.sh --prefix="$PREFIX"
+        ./b2 install cxxflags="-arch x86_64" linkflags="-arch x86_64"
+        cd ..
+
+        ######## FREEIMAGE ########
+        git clone --depth=1 https://github.com/multitheftauto/FreeImage.git freeimage-src
+        cd freeimage-src
+        make -f Makefile.osx
+        mkdir -p "$PREFIX/include" "$PREFIX/lib"
+        cp -r Dist/FreeImage.h Dist/FreeImagePlus.h "$PREFIX/include/"
+        cp Dist/libfreeimage.a "$PREFIX/lib/"
+        cd ..
+
+        ######## VULKAN HEADERS ########
+        git clone --depth=1 https://github.com/KhronosGroup/Vulkan-Headers.git vulkan-headers
+        cd vulkan-headers
+        cmake -B build -DCMAKE_INSTALL_PREFIX="$PREFIX"
+        cmake --build build
+        cmake --install build
+        cd ..
+
+        ######## VULKAN LOADER ########
+        git clone --depth=1 https://github.com/KhronosGroup/Vulkan-Loader.git vulkan-loader
+        cd vulkan-loader
+        cmake -B build -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_BUILD_TYPE=Release -DVULKAN_HEADERS_INSTALL_DIR="$PREFIX"
+        cmake --build build
+        cmake --install build
+        cd ..
+
+        ######## BROTLI ########
+        git clone --depth=1 https://github.com/google/brotli.git brotli
+        cd brotli
+        cmake -B out -DCMAKE_INSTALL_PREFIX="$PREFIX"
+        cmake --build out
+        cmake --install out
+        cd ..
+
+        ######## GDAL ########
+        curl -LO https://download.osgeo.org/gdal/3.8.5/gdal-3.8.5.tar.gz
+        tar xf gdal-3.8.5.tar.gz
+        cd gdal-3.8.5
+        ./configure --prefix="$PREFIX" --with-hide-internal-symbols
+        make -j$(sysctl -n hw.logicalcpu)
+        make install
+        cd ..
+
+        ######## GLM ########
+        git clone --depth=1 https://github.com/g-truc/glm.git glm
+        cd glm
+        cmake -B build -DCMAKE_INSTALL_PREFIX="$PREFIX"
+        cmake --install build
+        cd ..
+
+    - name: Install prebuilt mpv for x86_64
+      run: |
+        mkdir -p "$HOME/os-deps-x86_64/bin"
+        curl -L -o mpv.zip https://laboratory.stolendata.net/~djinn/mpv_osx/mpv-0.39.0.tar.gz
+        unzip mpv.zip
+        mv mpv.app/Contents/MacOS/mpv "$HOME/os-deps-x86_64/bin/mpv"
+        chmod +x "$HOME/os-deps-x86_64/bin/mpv"
+
+
   
     - name: Install x86_64 QT
       uses: jurplel/install-qt-action@v4
@@ -60,6 +161,7 @@ jobs:
         version: '6.9.1'
         arch: clang_64 
         # x86-64 /x64 fails with Please use 'aqt list-qt mac desktop --arch 6.9.1' to show architectures available.
+        # apparently clang_arm64 is for arm64, and clang_64 is for x86_64?
 
    # - name: Install QT for x86_64
     # https://doc.qt.io/qt-6.9/get-and-install-qt-cli.html#options-for-unattended-usage
