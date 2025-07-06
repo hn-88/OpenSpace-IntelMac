@@ -29,6 +29,31 @@ jobs:
               done
           done
 
+      - name: Remove conflicting Python 3.13 symlinks
+        run: |
+          CONFLICTS=(
+            /usr/local/bin/idle3
+            /usr/local/bin/idle3.13
+            /usr/local/bin/pip3
+            /usr/local/bin/pip3.13
+            /usr/local/bin/pydoc3
+            /usr/local/bin/pydoc3.13
+            /usr/local/bin/python3
+            /usr/local/bin/python3-config
+            /usr/local/bin/python3.13
+            /usr/local/bin/python3.13-config
+          )
+      
+          for FILE in "${CONFLICTS[@]}"; do
+            if [ -L "$FILE" ]; then
+              echo "Removing symlink: $FILE"
+              rm -f "$FILE"
+            else
+              echo "Skipping: $FILE (not a symlink)"
+            fi
+          done
+      
+      
 
       - name: Install x86_64 Homebrew under Rosetta to /usr/local
         run: |
