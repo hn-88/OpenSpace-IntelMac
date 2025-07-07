@@ -90,7 +90,7 @@ jobs:
           cd build
           # echo "Check to see if we have enough disk space ... " only 8 GB used out of 120+ GB
           # df -h
-          arch -x86_64 cmake --build . --config Release -- -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3
+          arch -x86_64 cmake --build . --config Release
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
