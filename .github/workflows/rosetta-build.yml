@@ -15,6 +15,12 @@ jobs:
           ref: 'ToCompileOnMacOS'
           submodules: 'recursive'
 
+      - name: patch Ghoul
+        run: |
+          cd "OpenSpace/ext"
+          rm -rf ghoul
+          git clone https://github.com/hn-88/Ghoul.git --branch MacOSfixes --recursive
+
       - name: Install Rosetta 2
         run: |
           /usr/sbin/softwareupdate --install-rosetta --agree-to-license
