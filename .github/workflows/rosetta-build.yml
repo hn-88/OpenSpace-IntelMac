@@ -17,7 +17,7 @@ jobs:
 
       - name: patch Ghoul
         run: |
-          cd "OpenSpace/ext"
+          cd ext
           rm -rf ghoul
           git clone https://github.com/hn-88/Ghoul.git --branch MacOSfixes --recursive
 
