@@ -1,4 +1,4 @@
-name: manual-build-deps-crosscompile-x86_64-on-macos14
+name: failed-manual-build-deps-crosscompile-x86_64-on-macos14
 
 on: workflow_dispatch
 
