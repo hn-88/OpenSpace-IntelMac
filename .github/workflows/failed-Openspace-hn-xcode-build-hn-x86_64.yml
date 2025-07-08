@@ -1,4 +1,4 @@
-name: Openspace-hn-xcode-build-hn-x86_64
+name: failed-Openspace-hn-xcode-build-hn-x86_64
 
 on: workflow_dispatch
 
