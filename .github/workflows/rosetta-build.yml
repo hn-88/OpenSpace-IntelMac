@@ -101,8 +101,17 @@ jobs:
       - name: Get OpenSpace Windows minimal
         run: |
           wget https://data.openspaceproject.com/release/0.21.0/OpenSpace-0.21.0_minimal.zip
+          mkdir -p ./bin/Release/OpenSpace
+          mv OpenSpace-0.21.0_minimal.zip ./bin/Release/OpenSpace
+          cd bin/Release/OpenSpace
           unzip OpenSpace-0.21.0_minimal.zip
           # replace the Windows binaries with the Mac app
+          rm vc_redist.x64.exe
+          rm -Rf bin
+          mkdir bin
+          mv -v bin/Release/OpenSpace.app bin/Release/OpenSpace/OpenSpace.app
+          cd bin/Release
+          zip OpenSpace.zip OpenSpace
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -111,6 +120,6 @@ jobs:
           name: OpenSpace-MacOS14-IntelMac
           # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
-          path: bin/Release/*.app
+          path: bin/Release/OpenSpace.zip
         
   
