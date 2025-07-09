@@ -98,6 +98,15 @@ jobs:
           # df -h
           arch -x86_64 cmake --build . --config Release
 
+      - name: Upload Artifact app
+        uses: actions/upload-artifact@v4
+        with:
+          # Artifact name
+          name: OpenSpace-MacOS14-IntelMac
+          # optional, default is artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: bin/Release/OpenSpace.app
+
       - name: Get OpenSpace Windows minimal
         run: |
           wget https://data.openspaceproject.com/release/0.21.0/OpenSpace-0.21.0_minimal.zip
@@ -117,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # Artifact name
-          name: OpenSpace-MacOS14-IntelMac
+          name: OpenSpace-MacOS14-IntelMac-minimal
           # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: bin/Release/OpenSpace.zip
