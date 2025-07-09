@@ -109,7 +109,7 @@ jobs:
 
       - name: Get OpenSpace Windows minimal
         run: |
-          wget https://data.openspaceproject.com/release/0.21.0/OpenSpace-0.21.0_minimal.zip
+          curl -O https://data.openspaceproject.com/release/0.21.0/OpenSpace-0.21.0_minimal.zip
           mkdir -p ./bin/Release/OpenSpace
           mv OpenSpace-0.21.0_minimal.zip ./bin/Release/OpenSpace
           cd bin/Release/OpenSpace
