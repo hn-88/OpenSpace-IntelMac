@@ -97,6 +97,12 @@ jobs:
           # echo "Check to see if we have enough disk space ... " only 8 GB used out of 120+ GB
           # df -h
           arch -x86_64 cmake --build . --config Release
+
+      - name: Get OpenSpace Windows minimal
+        run: |
+          wget https://data.openspaceproject.com/release/0.21.0/OpenSpace-0.21.0_minimal.zip
+          unzip OpenSpace-0.21.0_minimal.zip
+          # replace the Windows binaries with the Mac app
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
