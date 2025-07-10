@@ -118,8 +118,8 @@ jobs:
           rm vc_redist.x64.exe
           rm -Rf bin
           mkdir bin
-          mv -v bin/Release/OpenSpace.app bin/Release/OpenSpace/OpenSpace.app
-          cd bin/Release
+          mv -v ../OpenSpace.app bin/OpenSpace.app
+          cd ..
           zip OpenSpace.zip OpenSpace
           
       - name: Upload Artifact
