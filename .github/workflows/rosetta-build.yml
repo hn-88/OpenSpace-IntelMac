@@ -21,6 +21,11 @@ jobs:
           rm -rf ghoul
           git clone https://github.com/hn-88/Ghoul.git --branch MacOSfixes --recursive
 
+      - name: patch sgct
+        run: |
+          cd "./apps/OpenSpace/ext/sgct/src"
+          curl -L -o engine.cpp https://raw.githubusercontent.com/hn-88/sgct/patch-1/src/engine.cpp
+
       - name: Install Rosetta 2
         run: |
           /usr/sbin/softwareupdate --install-rosetta --agree-to-license
@@ -102,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # Artifact name
-          name: OpenSpace-MacOS14-IntelMac
+          name: OpenSpace-MacOS14-IntelMac-app
           # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: bin/Release/OpenSpace.app
