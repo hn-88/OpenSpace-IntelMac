@@ -1,0 +1,49 @@
+name: Upload to Draft Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload-release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Set release version
+        id: vars
+        run: echo "tag=v0.21.0plus5" >> $GITHUB_OUTPUT
+
+      - name: Get artifact download URL
+        id: get_artifact_url
+        run: |
+          API_URL="https://api.github.com/repos/hn-88/OpenSpace-AppleSiliconMac/actions/artifacts/3551629096/zip"
+          AUTH="Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+          ACCEPT="Accept: application/vnd.github+json"
+
+          curl -sSL -H "$AUTH" -H "$ACCEPT" -D headers.txt -o /dev/null "$API_URL"
+          DOWNLOAD_URL=$(grep -i "^location: " headers.txt | cut -d' ' -f2 | tr -d '\r\n')
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        run: |
+          curl -L -o OpenSpace.app.zip "${{ steps.get_artifact_url.outputs.download_url }}"
+
+      - name: Unzip artifact
+        run: |
+          # unzip artifact.zip -d unpacked
+
+      - name: Find PKG file
+        id: find_pkg
+        run: |
+          PKG_FILE=$(find unpacked -name "*.pkg" | head -n 1)
+          # echo "Found pkg: $PKG_FILE"
+          # echo "pkg_path=$PKG_FILE" >> $GITHUB_OUTPUT
+
+      - name: Create draft release and upload
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v0.21.0plus5
+          tag_name: v0.21.0plus5
+          draft: true
+          files: OpenSpace.app.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}  # Use PAT instead of default token
