@@ -21,10 +21,6 @@ jobs:
           rm -rf ghoul
           git clone https://github.com/hn-88/Ghoul.git --branch MacOSfixes --recursive
 
-      - name: patch sgct
-        run: |
-          cd "./apps/OpenSpace/ext/sgct/src"
-          curl -L -o engine.cpp https://raw.githubusercontent.com/hn-88/sgct/patch-1/src/engine.cpp
 
       - name: Install Rosetta 2
         run: |
