@@ -22,7 +22,7 @@ jobs:
 
       - name: Install by unzipping to $HOME/OpenSpace
         run: |
-          unzip OpenSpace-MacOS14-IntelMac-minimal.zip -d "$HOME/OpenSpace"
+          unzip -o OpenSpace-MacOS14-IntelMac-minimal.zip -d "$HOME"
           # sudo installer -pkg OpenSpace.pkg -target / | tee logs/install.log
           # sudo chown -R "$USER" "$HOME/OpenSpace"
 
