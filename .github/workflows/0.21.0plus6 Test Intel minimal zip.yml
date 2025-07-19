@@ -1,0 +1,86 @@
+name: 0.21.0plus6 Test Intel minimal zip
+
+on:
+  workflow_dispatch:
+
+jobs:
+  install-and-test:
+    runs-on: macos-13
+
+    steps:
+      - name: Create logs directory
+        run: mkdir -p logs
+
+      - name: Download OpenSpace zip
+        run: |
+          curl -L -o OpenSpace-MacOS14-IntelMac-minimal.zip \
+            https://github.com/hn-88/OpenSpace-IntelMac/releases/download/v0.21.0plus6/OpenSpace-MacOS14-IntelMac-minimal.zip
+
+   #   - name: Remove quarantine attribute from PKG
+   #     run: |
+   #       xattr -rd com.apple.quarantine OpenSpace.pkg || echo "No quarantine flag on pkg"
+
+      - name: Install by unzipping to $HOME/OpenSpace
+        run: |
+          unzip OpenSpace-MacOS14-IntelMac-minimal.zip -d "$HOME/OpenSpace"
+          # sudo installer -pkg OpenSpace.pkg -target / | tee logs/install.log
+          # sudo chown -R "$USER" "$HOME/OpenSpace"
+
+      - name: Remove quarantine from installed files
+        run: |
+          if [ -d "$HOME/OpenSpace" ]; then
+            echo "✅ Found installation directory"
+            xattr -r -d com.apple.quarantine "$HOME/OpenSpace/bin/OpenSpace.app" || echo "No quarantine flag found on installed files"
+          else
+            echo "❌ Installation directory not found"
+            exit 1
+          fi
+
+      - name: Verify .app bundle
+        run: |
+          if [ -d "$HOME/OpenSpace/bin/OpenSpace.app" ]; then
+            echo "✅ Found OpenSpace.app"
+          else
+            echo "❌ OpenSpace.app not found at expected location"
+            exit 1
+          fi
+
+      - name: Check Applications Shortcut
+        run: |
+          SHORTCUT="/Applications/OpenSpace"
+          TARGET="$HOME/OpenSpace/bin/OpenSpace.app"
+          if [ -L "$SHORTCUT" ]; then
+            LINK_TARGET=$(readlink "$SHORTCUT")
+            echo "🔗 Shortcut found: $SHORTCUT → $LINK_TARGET"
+            if [ "$LINK_TARGET" = "$TARGET" ]; then
+              echo "✅ Shortcut points to correct target"
+            else
+              echo "⚠️ Shortcut exists but points to wrong target"
+              # exit 1
+            fi
+          else
+            echo "❌ No shortcut found at $SHORTCUT"
+            # exit 1
+          fi
+
+      - name: Install GNU coreutils for gtimeout
+        run: brew install coreutils
+
+      - name: Install dependencies
+        run: brew install glm glew boost freeimage mpv vulkan-headers vulkan-loader brotli gdal qt@6
+
+      - name: Launch OpenSpace (simulate)
+        run: |
+          EXEC="$HOME/OpenSpace/bin/OpenSpace.app/Contents/MacOS/OpenSpace"
+          if [ ! -x "$EXEC" ]; then
+            echo "❌ Executable not found inside .app bundle"
+            exit 1
+          fi
+          echo "✅ Found executable, attempting to launch..."
+          gtimeout 5m "$EXEC" -b -p empty > logs/launch_output.log 2>&1 || echo "⚠️ Launch attempted (nonzero exit code allowed)"
+
+      - name: Upload logs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openspace-install-logs
+          path: logs/
