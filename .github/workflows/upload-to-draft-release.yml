@@ -10,12 +10,12 @@ jobs:
     steps:
       - name: Set release version
         id: vars
-        run: echo "tag=v0.21.0plus5" >> $GITHUB_OUTPUT
+        run: echo "tag=v0.21.0plus6" >> $GITHUB_OUTPUT
 
       - name: Get artifact download URL
         id: get_artifact_url
         run: |
-          API_URL="https://api.github.com/repos/hn-88/OpenSpace-IntelMac/actions/artifacts/3551629096/zip"
+          API_URL="https://api.github.com/repos/hn-88/OpenSpace-IntelMac/actions/artifacts/3568676827/zip"
           AUTH="Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
           ACCEPT="Accept: application/vnd.github+json"
 
@@ -41,8 +41,8 @@ jobs:
       - name: Create draft release and upload
         uses: softprops/action-gh-release@v1
         with:
-          name: v0.21.0plus5
-          tag_name: v0.21.0plus5
+          name: v0.21.0plus6
+          tag_name: v0.21.0plus6
           draft: true
           files: OpenSpace.app.zip
         env:
